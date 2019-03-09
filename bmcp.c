@@ -1,17 +1,31 @@
 #include <stdio.h>
 #include <string.h>
 
-int board[129] = {  // 0x88 board + positional scores
+int board[128] = {  // 0x88 board + positional scores
 
     22, 20, 21, 23, 19, 21, 20, 22,    0,  0,  5,  0,  0,  0,  5,  0, 
-    18, 18, 18, 18, 18, 18, 18, 18,    5,  5,-10,-10,-10,-10,  5,  5,
+    18, 18, 18, 18, 18, 18, 18, 18,    5,  5,  0,  0,  0,  0,  5,  5,
      0,  0,  0,  0,  0,  0,  0,  0,    5, 10, 15, 20, 20, 15, 10,  5,
      0,  0,  0,  0,  0,  0,  0,  0,    5, 10, 20, 30, 30, 20, 10,  5,    
      0,  0,  0,  0,  0,  0,  0,  0,    5, 10, 20, 30, 30, 20, 10,  5,
      0,  0,  0,  0,  0,  0,  0,  0,    5, 10, 15, 20, 20, 15, 10,  5,
-     9,  9,  9,  9,  9,  9,  9,  9,    5,  5,-10,-10,-10,-10,  5,  5,
+     9,  9,  9,  9,  9,  9,  9,  9,    5,  5,  0,  0,  0,  0,  5,  5,
     14, 12, 13, 15, 11, 13, 12, 14,    0,  0,  5,  0,  0,  0,  5,  0
+
 };
+
+/*int board[129] = {  // 0x88 board + positional scores
+
+     0,  0,  0,  0,  0,  0, 19,  0,    0,  0,  0,  0,  0,  0,  0,  0, 
+     0,  0,  0,  0,  0,  0,  0,  0,    0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0, 11,  0,    5, 10, 15, 20, 20, 15, 10,  5,
+     0,  0,  0,  0, 15,  0,  0,  0,    5, 10, 20, 30, 30, 20, 10,  5,    
+     0,  0,  0,  0,  0,  0,  0,  0,    5, 10, 20, 30, 30, 20, 10,  5,
+     0,  0,  0,  0,  0,  0,  0,  0,    5, 10, 15, 20, 20, 15, 10,  5,
+     0,  0,  0,  0,  0,  0,  0,  0,    0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0,    0,  0,  0,  0,  0,  0,  0,  0
+
+};*/
 
 char *notation[] = {
 
@@ -67,20 +81,25 @@ int SearchPosition(int side, int depth, int alpha, int beta)
 {
     if(!depth)
     {        
-        int material, eval = 0;
-
+        int mat_score = 0, pos_score = 0, pce, eval = 0;
+    
         for(int sq = 0; sq < 128; sq++)
         {
             if(!(sq & 0x88))
             {
-                if(material = board[sq])
+                if(pce = board[sq])
                 {
-                    eval += piece_weights[material & 15]; // accumulating material score
-                    (material & 8) ? (eval += board[sq + 8]) : (eval -= board[sq + 8]); // positional score
+                    mat_score += piece_weights[pce & 15]; // accumulating material score
+                    (pce & 8) ? (pos_score += board[sq + 8]) : (pos_score -= board[sq + 8]); // positional score
                 }
             }
         }
-
+    
+        eval = mat_score + pos_score;
+        //printf("\nmat_score: '%d'\n", mat_score);
+        //printf("pos_score: '%d'\n", pos_score);
+        //printf("eval: '%d'    ", (side == 8) ? eval : -eval);
+        
         return (side == 8) ? eval : -eval;
     }
 
@@ -126,25 +145,27 @@ int SearchPosition(int side, int depth, int alpha, int beta)
                         board[dst_square] = piece;
 
                         // pawn promotion
-                        if(dst_square + step_vector + 1 & 0x80)
-                            board[dst_square]|=7;
-
-                        // make move
-                        board[captured_square] = 0;
-                        board[src_square] = 0;
-                        board[dst_square] = piece;
-
-                        // pawn promotion
-                        if(dst_square + step_vector + 1 & 0x80)
-                            board[dst_square]|=7;
-
+                        if(type < 3)
+                        {
+                            if(dst_square + step_vector + 1 & 0x80)
+                                board[dst_square]|=7;
+                        }
+                        
                         //printf("best_score: '%d'\n", best_score);
                         score = -SearchPosition(24 - side, depth - 1, -beta, -alpha);
-                                                            
+                        //printf("move: '%s%s'    score: '%d'\n", notation[src_square], notation[dst_square], score);
+
+                        //PrintBoard(); getchar();
+                                              
                         // take back
                         board[dst_square] = 0;
                         board[src_square] = piece;
                         board[captured_square] = captured_piece;
+
+                        //PrintBoard(); getchar();
+
+                        best_src = src_square;
+                        best_dst = dst_square;
 
                         if(score > alpha)
                         {
@@ -152,10 +173,11 @@ int SearchPosition(int side, int depth, int alpha, int beta)
                                 return beta;
                             
                             alpha = score;
+                            //printf("better move: '%s%s'    alpha: '%d'    depth: '%d'    side: '%d'\n", notation[src_square], notation[dst_square], alpha, depth, side);
         
                             temp_src = src_square;
-                            temp_dst = dst_square;                
-                        }
+                            temp_dst = dst_square;
+                        }              
                         
                         captured_piece += type < 5;
                         
@@ -170,18 +192,19 @@ int SearchPosition(int side, int depth, int alpha, int beta)
 
     if(alpha != old_alpha)
     {
+        //printf("return alpha: '%d'\n", alpha); PrintBoard(); getchar();
         best_src = temp_src;
         best_dst = temp_dst;
     }
-    
-    return alpha;
+
+    return alpha;   // here we return the best score
 }
 
 int main()
 {
     char user_move[5];
     
-    int depth = 2;
+    int depth = 4;
     int side = WHITE;
 
     PrintBoard();
@@ -198,6 +221,7 @@ int main()
         PrintBoard();
         printf("\nscore: '%d'\n", score);
         printf("best move: '%s%s'\n", notation[best_src], notation[best_dst]);
+        
         getchar();
     }*/
 
@@ -227,8 +251,9 @@ int main()
         board[user_dst] = board[user_src];
         board[user_src] = 0;
 
+
         side = 24 - side;
-                
+              
         int score = SearchPosition(side, depth, -10000, 10000);
         
         board[best_dst] = board[best_src];
@@ -238,6 +263,9 @@ int main()
 
         PrintBoard();
         printf("\nscore: '%d'\n", score);
+        
+        if(score == 10000 || score == -10000) {printf("Checkmate!\n"); break;}
+
         printf("best move: '%s%s'\n", notation[best_src], notation[best_dst]);
         //getchar();
     }
