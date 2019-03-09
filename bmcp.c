@@ -200,11 +200,13 @@ int SearchPosition(int side, int depth, int alpha, int beta)
     return alpha;   // here we return the best score
 }
 
+// TODO: queen promotion after board move
+
 int main()
 {
     char user_move[5];
     
-    int depth = 4;
+    int depth = 5;
     int side = WHITE;
 
     PrintBoard();
@@ -251,6 +253,7 @@ int main()
         board[user_dst] = board[user_src];
         board[user_src] = 0;
 
+        PrintBoard();
 
         side = 24 - side;
               
