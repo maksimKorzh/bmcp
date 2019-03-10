@@ -1,3 +1,57 @@
+/*********************************************************************************\
+;                                    BMCP v1.0                                    ;
+;---------------------------------------------------------------------------------;
+;                    A tribute to chess programming community                     ;
+;              based on the ideas taken from micro-Max by H.G.Muller              ;
+;---------------------------------------------------------------------------------;
+;                                by Maksim Korzh                                  ;
+;---------------------------------------------------------------------------------;
+\*********************************************************************************/
+
+/*********************************************************************************\
+;---------------------------------------------------------------------------------;
+;           THIS WORK IS DEDICATED TO HOBBY PROGRAMMERS WHO AIMS TO GET           ;
+;                        THE VERY GIST OF CHESS PROGRAMMING                       ;
+;---------------------------------------------------------------------------------;
+;       "A vague understanding of your goals leads to unpredictable results       ;
+;             and abandoning the project halfway..." - my experience              ;
+;---------------------------------------------------------------------------------;
+\*********************************************************************************/
+
+/*********************************************************************************\
+;---------------------------------------------------------------------------------;
+;        Copyright © 2018 Maksim Korzh <freesoft.for.people@gmail.com>            ;
+;---------------------------------------------------------------------------------;
+;     This work is free. You can redistribute it and/or modify it under the       ;
+;      terms of the Do What The Fuck You Want To Public License, Version 2,       ;
+;       as published by Sam Hocevar. See the COPYING file for more details.       ;
+;---------------------------------------------------------------------------------;
+'       THIS PROGRAM IS FREE SOFTWARE. IT COMES WITHOUT ANY WARRANTY, TO          ;
+;        THE EXTENT PERMITTED BY APPLICABLE LAW. YOU CAN REDISTRIBUTE IT          ;
+;       AND/OR MODIFY IT UNDER THE TERMS OF THE DO WHAT THE FUCK YOU WANT         ;
+;          TO PUBLIC LICENCE, VERSION 2, AS PUBLISHED BY SAM HOCEVAR.             ;
+;                SEE http://www.wtfpl.net/ FOR MORE DETAILS.                      ;
+;---------------------------------------------------------------------------------;
+\*********************************************************************************/
+
+/*********************************************************************************\
+;---------------------------------------------------------------------------------;
+;                   DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE                   ;
+;                           Version 2, December 2004                              ;
+;                                                                                 ;
+;        Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>                         ;
+;                                                                                 ;
+;        Everyone is permitted to copy and distribute verbatim or modified        ;
+;        copies of this license document, and changing it is allowed as long      ;
+;        as the name is changed.                                                  ;
+;                                                                                 ;
+;                   DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE                   ;
+;          TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION        ;
+;                                                                                 ;
+;         0. You just DO WHAT THE FUCK YOU WANT TO.                               ;
+;---------------------------------------------------------------------------------;
+\*********************************************************************************/
+
 #include <stdio.h>
 #include <string.h>
 
@@ -189,6 +243,27 @@ int main()
     int side = WHITE;
 
     PrintBoard();
+
+//#define DEBUG    // uncoment to see computer playing itself
+#ifdef DEBUG
+
+    while(1)    // computer plays against itself
+    {
+        int score = SearchPosition(side, depth, -10000, 10000);
+        
+        board[best_dst] = board[best_src];
+        board[best_src] = 0;
+
+        side = 24 - side;
+
+        PrintBoard();
+        printf("\nscore: '%d'\n", score);
+        printf("best move: '%s%s'\n", notation[best_src], notation[best_dst]);
+        
+        getchar();
+    }
+
+#endif
 
     while(1)  // play vs computer
     {
