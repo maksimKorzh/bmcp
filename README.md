@@ -8,4 +8,4 @@ It's not written for speed or strength but rather
 for clarity and educational purposes.
 
 # YouTube tutorial series on this program
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/927rfAPHX6E/0.jpg)](https://youtu.be/927rfAPHX6E)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/927rfAPHX6E/0.jpg)](https://www.youtube.com/watch?v=927rfAPHX6E&list=PLLfIBXQeu3abJwgFt7JPFGVpxazkGoh16)
